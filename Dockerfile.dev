@@ -1,0 +1,17 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Установка зависимостей
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Копирование остальных файлов
+COPY . .
+
+# Генерация Prisma Client
+RUN npx prisma generate
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]

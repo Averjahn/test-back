@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(PATIENT)
+  firstName    String?
+  lastName     String?
+  middleName   String?
+  createdAt    DateTime @default(now())
+  login        String   @unique
+  doctor       Doctor?
+  patient      Patient?
+
+  @@map("users")
+}
+
+model Patient {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  createdAt      DateTime        @default(now())
+  birthDate      DateTime?
+  avatarUrl      String?
+  trustedContact String?
+  tariffId       String?
+  assignments    Assignment[]
+  diaryEntries   DiaryEntry[]
+  medicalData    MedicalData[]
+  doctors        PatientDoctor[]
+  tariff         Tariff?         @relation(fields: [tariffId], references: [id])
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("patients")
+}
+
+model Doctor {
+  id          String          @id(map: "doctor_profiles_pkey") @default(uuid())
+  userId      String          @unique(map: "doctor_profiles_userId_key")
+  createdAt   DateTime        @default(now())
+  assignments Assignment[]
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patients    PatientDoctor[]
+
+  @@map("doctors")
+}
+
+model PatientDoctor {
+  doctorId  String
+  patientId String
+  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@id([patientId, doctorId])
+  @@map("patient_doctors")
+}
+
+model Trainer {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  iframeUrl   String
+  section     String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assignments Assignment[]
+
+  @@map("trainers")
+}
+
+model Assignment {
+  id        String        @id @default(uuid())
+  patientId String
+  doctorId  String
+  trainerId String
+  createdAt DateTime      @default(now())
+  doctor    Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  patient   Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  trainer   Trainer       @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  sessions  TestSession[]
+
+  @@map("assignments")
+}
+
+model TestSession {
+  id           String       @id @default(uuid())
+  assignmentId String
+  startedAt    DateTime     @default(now())
+  finishedAt   DateTime?
+  correct      Int          @default(0)
+  incorrect    Int          @default(0)
+  durationSec  Int          @default(0)
+  answers      TestAnswer[]
+  assignment   Assignment   @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@map("test_sessions")
+}
+
+model TestAnswer {
+  id         String      @id @default(uuid())
+  sessionId  String
+  questionId String
+  answer     Json
+  isCorrect  Boolean
+  createdAt  DateTime    @default(now())
+  session    TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("test_answers")
+}
+
+model Tariff {
+  id        String         @id @default(uuid())
+  title     String
+  price     Int
+  discount  Int            @default(0)
+  imageUrl  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  patients  Patient[]
+  options   TariffOption[]
+
+  @@map("tariffs")
+}
+
+model TariffOption {
+  id          String   @id @default(uuid())
+  tariffId    String
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  tariff      Tariff   @relation(fields: [tariffId], references: [id], onDelete: Cascade)
+
+  @@map("tariff_options")
+}
+
+model MedicalData {
+  id        String   @id @default(uuid())
+  patientId String
+  type      String
+  data      Json
+  createdAt DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("medical_data")
+}
+
+model DiaryEntry {
+  id        String   @id @default(uuid())
+  patientId String
+  date      DateTime @default(now())
+  weather   String
+  mood      String
+  wellbeing String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade, map: "diary_entries_patientid_fkey")
+
+  @@map("diary_entries")
+}
+
+enum UserRole {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
