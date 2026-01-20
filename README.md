@@ -1,3 +1,159 @@
+## MPRO Backend (NestJS + Prisma)
+
+Проект: серверная часть системы реабилитации пациентов с нарушениями речи.  
+Стек: **NestJS**, **Prisma (PostgreSQL)**, **JWT (HttpOnly cookie)**.
+
+### Структура проекта
+
+- `src/app.module.ts` – корневой модуль
+- `src/prisma/*` – Prisma‑клиент и модуль БД
+- `src/auth/*` – аутентификация, JWT, iframe‑токен
+- `src/users/*` – пользователи (ADMIN / DOCTOR / PATIENT)
+- `src/admin/*` – админские операции (создание пациентов/врачей/тарифов/тренажёров)
+- `src/doctors/*` – эндпоинты для врачей
+- `src/patients/*` – эндпоинты для админской части пациентов
+- `src/patient/*` – эндпоинты для **самого пациента** (профиль, тариф и т.п.)
+- `src/trainers/*` – каталог тренажёров (v0‑проекты)
+- `src/tests/*` – старт/ответы/завершение тест‑сессий
+- `src/diary/*` – дневник пациента
+- `src/common/*` – guards, декораторы, middleware, Role‑based доступ
+
+### Установка и запуск локально
+
+1. **Зависимости**
+
+```bash
+cd backend
+npm install
+```
+
+2. **PostgreSQL**
+
+Создай БД и пользователя (пример):
+
+```sql
+CREATE USER mpro_user WITH PASSWORD 'mpro_password';
+CREATE DATABASE mpro_db OWNER mpro_user;
+GRANT ALL PRIVILEGES ON DATABASE mpro_db TO mpro_user;
+```
+
+3. **.env**
+
+Создай `backend/.env`:
+
+```env
+DATABASE_URL="postgresql://mpro_user:mpro_password@localhost:5432/mpro_db?schema=public"
+JWT_SECRET="super-secret-jwt-key-change-me"
+FRONTEND_URL="http://localhost:5173"
+```
+
+4. **Миграции и сиды**
+
+```bash
+npx prisma migrate deploy
+npm run prisma:seed
+```
+
+5. **Запуск**
+
+```bash
+npm run start:dev
+# или
+npm run start
+```
+
+API будет доступен по `http://localhost:3000/api`.
+
+### Роли и авторизация
+
+- Роли: `ADMIN`, `DOCTOR`, `PATIENT`
+- Логин: `POST /api/auth/login`
+  - При успехе выдаётся JWT (в cookie и/или теле ответа)
+- iframe‑токен: `POST /api/auth/iframe-token` (для встраиваемых v0‑проектов)
+- Guards:
+  - `JwtAuthGuard` – проверяет JWT
+  - `RolesGuard` + декоратор `@Roles(...)` – проверка ролей
+
+### Ключевые эндпоинты
+
+#### Auth
+- `POST /api/auth/login` – вход (email + password)
+- `POST /api/auth/logout` – выход
+- `POST /api/auth/iframe-token` – JWT для iframe (используется во v0)
+
+#### Пациент (личный кабинет)
+- `GET /api/patient/profile` – профиль пациента, текущий тариф, лечащий врач
+- `PUT /api/patient/tariff` – смена тарифа:
+
+```json
+{
+  "tariffId": "uuid"
+}
+```
+
+#### Тарифы
+- `GET /api/tariffs` – список всех тарифов (ADMIN/DOCTOR/PATIENT)
+
+#### Тренажёры (trainers)
+- `GET /api/trainers` – список всех тренажёров
+- `GET /api/trainers?section=1.1` – тренажёры по разделу
+- `GET /api/trainers/sections` – список всех разделов
+- `POST /api/admin/trainers` – создание тренажёра (ADMIN)
+
+#### Тест‑сессии (для v0‑проектов)
+
+Все запросы требуют заголовок `Authorization: Bearer <token>` **и** `credentials: 'include'` на клиенте.
+
+- `POST /api/tests/start-session`
+
+```json
+{
+  "assignmentId": "uuid или \"preview\""
+}
+```
+
+Особенности:
+- `assignmentId = "preview"` – режим **просмотра** (используется врачом и в iframe).
+- Для реальных UUID – только `PATIENT` может запускать сессию.
+
+- `POST /api/tests/answer`
+
+```json
+{
+  "sessionId": "uuid",
+  "questionId": "some-question-id",
+  "answer": { "value": "..." },
+  "isCorrect": true
+}
+```
+
+- `POST /api/tests/finish`
+
+```json
+{
+  "sessionId": "uuid"
+}
+```
+
+### Особенности CORS / iframe
+
+Конфигурация CORS (см. `src/main.ts`):
+- `app.enableCors(...)` с:
+  - `origin` – список доверенных доменов (localhost, Vercel, ngrok и т.п.)
+  - `credentials: true`
+  - `allowedHeaders` включает `Authorization`
+- Для preflight‑запросов `OPTIONS` в `JwtAuthGuard` сделано исключение.
+
+Для iframe:
+- Заголовки `Content-Security-Policy: frame-ancestors` и `X-Frame-Options` настроены для разрешённых доменов.
+- v0‑проект получает параметры через URL:
+  - `userId`
+  - `token`
+  - `assignmentId`
+  - `apiBaseUrl` – **обязателен**, чтобы v0 ходил не на `localhost`, а на внешний URL (ngrok/Vercel/др.).
+
+Подробный гайд по v0 и параметрам см. в `../README_V0.md`.
+
 # MPRO Backend API
 
 Backend приложение на NestJS для медицинской платформы MPRO.
