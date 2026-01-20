@@ -33,6 +33,8 @@ async function bootstrap() {
     // v0 проекты на Vercel
     'https://v0-test.vercel.app',
     'https://v0-test-web-application.vercel.app',
+    // Render хостинг (для фронта и v0)
+    // Добавь сюда URL твоего фронта на Vercel/Render когда задеплоишь
   ];
   
   // CORS настройка согласно best practices для iframe + Authorization header
@@ -50,6 +52,12 @@ async function bootstrap() {
       // С credentials: true нельзя использовать wildcard '*', поэтому проверяем явно
       if (origin.includes('vercel.app')) {
         console.log('CORS: ✅ Vercel.app domain - allowing:', origin);
+        return callback(null, true);
+      }
+      
+      // Разрешаем все onrender.com домены (для фронта на Render)
+      if (origin.includes('onrender.com')) {
+        console.log('CORS: ✅ Render.com domain - allowing:', origin);
         return callback(null, true);
       }
       

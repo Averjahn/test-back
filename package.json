@@ -22,8 +22,12 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "ts-node -r dotenv/config prisma/seed.ts"
+    "prisma:seed": "ts-node -r dotenv/config prisma/seed.ts",
+    "deploy:render": "render deploy",
+    "deploy:render:wait": "render deploy --wait",
+    "deploy:setup": "echo 'Run: render login && render workspace set'"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
