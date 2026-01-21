@@ -78,6 +78,18 @@ async function bootstrap() {
         console.log('CORS: ✅ Localtunnel domain - allowing:', origin);
         return callback(null, true);
       }
+
+      // Разрешаем tuna.am домены (туннель для локального backend)
+      if (origin.includes('tuna.am')) {
+        console.log('CORS: ✅ Tuna.am domain - allowing:', origin);
+        return callback(null, true);
+      }
+      
+      // Разрешаем Cloudflare Tunnel домены
+      if (origin.includes('trycloudflare.com') || origin.includes('cloudflare.com')) {
+        console.log('CORS: ✅ Cloudflare tunnel domain - allowing:', origin);
+        return callback(null, true);
+      }
       
       // Проверяем явный allowlist
       if (allowedOrigins.includes(origin)) {
