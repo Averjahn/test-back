@@ -2,10 +2,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "./ERD.md"
-}
+// Генератор ERD - опциональный, используется только локально
+// В Docker контейнерах может отсутствовать, поэтому закомментирован
+// Раскомментируй для генерации диаграммы: npx prisma generate
+// generator erd {
+//   provider = "prisma-erd-generator"
+//   output   = "./ERD.md"
+// }
 
 datasource db {
   provider = "postgresql"
