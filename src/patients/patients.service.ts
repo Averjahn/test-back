@@ -36,6 +36,34 @@ export class PatientsService {
             firstName: true,
             lastName: true,
             middleName: true,
+            createdAt: true,
+          },
+        },
+        tariff: true,
+        doctors: {
+          include: {
+            doctor: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    middleName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        assignments: {
+          include: {
+            sessions: {
+              orderBy: {
+                startedAt: 'desc',
+              },
+            },
           },
         },
       },

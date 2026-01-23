@@ -6,58 +6,58 @@ export declare class DiaryController {
     private diaryService;
     constructor(diaryService: DiaryService);
     getEntries(user: User): Promise<{
-        content: string;
         id: string;
         createdAt: Date;
-        patientId: string;
         updatedAt: Date;
+        patientId: string;
         date: Date;
         weather: string;
         mood: string;
         wellbeing: string;
+        content: string;
     }[]>;
     getEntryById(user: User, entryId: string): Promise<{
-        content: string;
         id: string;
         createdAt: Date;
-        patientId: string;
         updatedAt: Date;
+        patientId: string;
         date: Date;
         weather: string;
         mood: string;
         wellbeing: string;
+        content: string;
     }>;
     createEntry(user: User, dto: CreateDiaryEntryDto): Promise<{
-        content: string;
         id: string;
         createdAt: Date;
-        patientId: string;
         updatedAt: Date;
+        patientId: string;
         date: Date;
         weather: string;
         mood: string;
         wellbeing: string;
+        content: string;
     }>;
     updateEntry(user: User, entryId: string, dto: UpdateDiaryEntryDto): Promise<{
-        content: string;
         id: string;
         createdAt: Date;
-        patientId: string;
         updatedAt: Date;
+        patientId: string;
         date: Date;
         weather: string;
         mood: string;
         wellbeing: string;
+        content: string;
     }>;
     deleteEntry(user: User, entryId: string): Promise<{
-        content: string;
         id: string;
         createdAt: Date;
-        patientId: string;
         updatedAt: Date;
+        patientId: string;
         date: Date;
         weather: string;
         mood: string;
         wellbeing: string;
+        content: string;
     }>;
 }

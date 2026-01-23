@@ -5,21 +5,21 @@ export declare class TrainersController {
     private trainersService;
     constructor(trainersService: TrainersService);
     findAll(section?: string): Promise<{
-        description: string | null;
         id: string;
         createdAt: Date;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }[]>;
     getSections(): Promise<string[]>;
     findBySection(section: string): Promise<{
-        description: string | null;
         id: string;
         createdAt: Date;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }[]>;
@@ -37,52 +37,52 @@ export declare class TrainersController {
             } & {
                 id: string;
                 createdAt: Date;
-                userId: string;
                 birthDate: Date | null;
                 avatarUrl: string | null;
                 trustedContact: string | null;
                 tariffId: string | null;
+                userId: string;
             };
         } & {
             id: string;
             createdAt: Date;
-            doctorId: string;
             patientId: string;
+            doctorId: string;
             trainerId: string;
         })[];
     } & {
-        description: string | null;
         id: string;
         createdAt: Date;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;
     create(dto: CreateTrainerDto): Promise<{
-        description: string | null;
         id: string;
         createdAt: Date;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;
     update(id: string, dto: UpdateTrainerDto): Promise<{
-        description: string | null;
         id: string;
         createdAt: Date;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;
     delete(id: string): Promise<{
-        description: string | null;
         id: string;
         createdAt: Date;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;

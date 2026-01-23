@@ -88,4 +88,16 @@ export class DoctorController {
   ) {
     return this.doctorService.deleteMedicalData(user.id, patientId, medicalDataId);
   }
+
+  @Get('patient/:id/diary')
+  @ApiOperation({ summary: 'Get patient diary entries' })
+  @ApiResponse({ status: 200, description: 'List of diary entries' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Doctor only) or patient not assigned' })
+  @ApiResponse({ status: 404, description: 'Patient not found' })
+  async getPatientDiary(
+    @CurrentUser() user: User,
+    @Param('id') patientId: string,
+  ) {
+    return this.doctorService.getPatientDiary(user.id, patientId);
+  }
 }

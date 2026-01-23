@@ -5,18 +5,18 @@ export declare class TariffsController {
     findAll(): Promise<({
         options: {
             id: string;
-            title: string;
             createdAt: Date;
             tariffId: string;
+            title: string;
             description: string | null;
         }[];
     } & {
         id: string;
+        createdAt: Date;
         title: string;
         price: number;
         discount: number;
         imageUrl: string | null;
-        createdAt: Date;
         updatedAt: Date;
     })[]>;
 }

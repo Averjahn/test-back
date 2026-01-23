@@ -6,32 +6,24 @@ export declare class DoctorController {
     private doctorService;
     constructor(doctorService: DoctorService);
     getPatients(user: User): Promise<({
-        user: {
-            id: string;
-            email: string;
-            firstName: string | null;
-            lastName: string | null;
-            middleName: string | null;
-            login: string;
-        };
         assignments: ({
             trainer: {
-                description: string | null;
                 id: string;
                 createdAt: Date;
                 title: string;
-                updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
+                updatedAt: Date;
             };
             sessions: {
                 id: string;
                 startedAt: Date;
+                assignmentId: string;
                 finishedAt: Date | null;
                 correct: number;
                 incorrect: number;
                 durationSec: number;
-                assignmentId: string;
             }[];
         } & {
             id: string;
@@ -40,19 +32,27 @@ export declare class DoctorController {
             patientId: string;
             trainerId: string;
         })[];
+        user: {
+            id: string;
+            email: string;
+            firstName: string | null;
+            lastName: string | null;
+            middleName: string | null;
+            login: string;
+        };
         tariff: {
             id: string;
             createdAt: Date;
             title: string;
+            updatedAt: Date;
             price: number;
             discount: number;
             imageUrl: string | null;
-            updatedAt: Date;
         } | null;
     } & {
         id: string;
-        createdAt: Date;
         userId: string;
+        createdAt: Date;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
@@ -70,21 +70,21 @@ export declare class DoctorController {
             };
         } & {
             id: string;
-            createdAt: Date;
             userId: string;
+            createdAt: Date;
             birthDate: Date | null;
             avatarUrl: string | null;
             trustedContact: string | null;
             tariffId: string | null;
         };
         trainer: {
-            description: string | null;
             id: string;
             createdAt: Date;
             title: string;
-            updatedAt: Date;
+            description: string | null;
             iframeUrl: string;
             section: string;
+            updatedAt: Date;
         };
     } & {
         id: string;
@@ -94,32 +94,24 @@ export declare class DoctorController {
         trainerId: string;
     }>;
     getPatientData(user: User, patientId: string): Promise<{
-        user: {
-            id: string;
-            email: string;
-            firstName: string | null;
-            lastName: string | null;
-            middleName: string | null;
-            login: string;
-        };
         assignments: ({
             trainer: {
-                description: string | null;
                 id: string;
                 createdAt: Date;
                 title: string;
-                updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
+                updatedAt: Date;
             };
             sessions: {
                 id: string;
                 startedAt: Date;
+                assignmentId: string;
                 finishedAt: Date | null;
                 correct: number;
                 incorrect: number;
                 durationSec: number;
-                assignmentId: string;
             }[];
         } & {
             id: string;
@@ -128,43 +120,62 @@ export declare class DoctorController {
             patientId: string;
             trainerId: string;
         })[];
-        medicalData: {
-            type: string;
+        user: {
             id: string;
-            createdAt: Date;
-            data: import("@prisma/client/runtime/client").JsonValue;
-            patientId: string;
-        }[];
+            email: string;
+            firstName: string | null;
+            lastName: string | null;
+            middleName: string | null;
+            login: string;
+        };
         tariff: {
             id: string;
             createdAt: Date;
             title: string;
+            updatedAt: Date;
             price: number;
             discount: number;
             imageUrl: string | null;
-            updatedAt: Date;
         } | null;
+        medicalData: {
+            id: string;
+            createdAt: Date;
+            patientId: string;
+            data: import("@prisma/client/runtime/client").JsonValue;
+            type: string;
+        }[];
     } & {
         id: string;
-        createdAt: Date;
         userId: string;
+        createdAt: Date;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
         tariffId: string | null;
     }>;
     createMedicalData(user: User, patientId: string, dto: CreateMedicalDataDto): Promise<{
-        type: string;
         id: string;
         createdAt: Date;
-        data: import("@prisma/client/runtime/client").JsonValue;
         patientId: string;
+        data: import("@prisma/client/runtime/client").JsonValue;
+        type: string;
     }>;
     deleteMedicalData(user: User, patientId: string, medicalDataId: string): Promise<{
-        type: string;
         id: string;
         createdAt: Date;
-        data: import("@prisma/client/runtime/client").JsonValue;
         patientId: string;
+        data: import("@prisma/client/runtime/client").JsonValue;
+        type: string;
     }>;
+    getPatientDiary(user: User, patientId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        patientId: string;
+        updatedAt: Date;
+        date: Date;
+        weather: string;
+        mood: string;
+        wellbeing: string;
+        content: string;
+    }[]>;
 }

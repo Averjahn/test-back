@@ -43,6 +43,9 @@ let DoctorController = class DoctorController {
     async deleteMedicalData(user, patientId, medicalDataId) {
         return this.doctorService.deleteMedicalData(user.id, patientId, medicalDataId);
     }
+    async getPatientDiary(user, patientId) {
+        return this.doctorService.getPatientDiary(user.id, patientId);
+    }
 };
 exports.DoctorController = DoctorController;
 __decorate([
@@ -109,6 +112,18 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], DoctorController.prototype, "deleteMedicalData", null);
+__decorate([
+    (0, common_1.Get)('patient/:id/diary'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get patient diary entries' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of diary entries' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden (Doctor only) or patient not assigned' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Patient not found' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], DoctorController.prototype, "getPatientDiary", null);
 exports.DoctorController = DoctorController = __decorate([
     (0, swagger_1.ApiTags)('doctor'),
     (0, common_1.Controller)('doctor'),

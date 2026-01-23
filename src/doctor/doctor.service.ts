@@ -266,4 +266,42 @@ export class DoctorService {
       where: { id: medicalDataId },
     });
   }
+
+  async getPatientDiary(doctorUserId: string, patientId: string) {
+    // Проверяем доступ
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { userId: doctorUserId },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    const relation = await this.prisma.patientDoctor.findUnique({
+      where: {
+        patientId_doctorId: {
+          patientId,
+          doctorId: doctor.id,
+        },
+      },
+    });
+
+    if (!relation) {
+      throw new ForbiddenException('You can only access diary of your own patients');
+    }
+
+    // Получаем дневник пациента
+    const patient = await this.prisma.patient.findUnique({
+      where: { id: patientId },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+
+    return this.prisma.diaryEntry.findMany({
+      where: { patientId: patient.id },
+      orderBy: { date: 'desc' },
+    });
+  }
 }

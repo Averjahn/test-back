@@ -143,6 +143,158 @@ let PatientService = class PatientService {
         });
         return updatedPatient;
     }
+    async getAssignments(patientUserId) {
+        const patient = await this.prisma.patient.findUnique({
+            where: { userId: patientUserId },
+        });
+        if (!patient) {
+            throw new common_1.NotFoundException('Patient profile not found');
+        }
+        const assignments = await this.prisma.assignment.findMany({
+            where: {
+                patientId: patient.id,
+            },
+            include: {
+                trainer: true,
+                doctor: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                email: true,
+                                login: true,
+                                firstName: true,
+                                lastName: true,
+                                middleName: true,
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        return assignments.map((assignment) => {
+            const trainer = assignment.trainer;
+            const sectionParts = trainer.section.split('.');
+            const categoryNumber = sectionParts[0] || '';
+            const subsectionNumber = sectionParts[1] || '';
+            const categoryMap = {
+                '1': 'Тесты',
+                '2': 'Буквы',
+                '3': 'Слоги',
+                '4': 'Слова',
+                '5': 'Грамматика',
+            };
+            const sectionMap = {
+                '1.1': 'Известные ряды понятий',
+                '1.2': 'Фразы и предложения, знакомые с детства',
+                '2.1': 'Составление слов из букв',
+                '3.1': 'Составление слов из слогов',
+                '4.1': 'Антонимы и синонимы',
+                '5.1': 'Число (единственное и множественное)',
+            };
+            const category = categoryMap[categoryNumber] || 'Тесты';
+            const sectionName = sectionMap[trainer.section] || trainer.description || trainer.title || 'Не указано';
+            const recommendation = `Рекомендуется проходить задания ${categoryNumber}. ${category}/${trainer.section}. ${sectionName}`;
+            return {
+                id: assignment.id,
+                date: assignment.createdAt.toISOString().split('T')[0],
+                recommendation,
+                trainer: {
+                    id: trainer.id,
+                    title: trainer.title,
+                    section: trainer.section,
+                    description: trainer.description,
+                },
+                doctor: {
+                    id: assignment.doctor.user.id,
+                    firstName: assignment.doctor.user.firstName,
+                    lastName: assignment.doctor.user.lastName,
+                    middleName: assignment.doctor.user.middleName,
+                },
+                createdAt: assignment.createdAt,
+            };
+        });
+    }
+    async getAchievements(patientUserId) {
+        const patient = await this.prisma.patient.findUnique({
+            where: { userId: patientUserId },
+        });
+        if (!patient) {
+            throw new common_1.NotFoundException('Patient profile not found');
+        }
+        const sessions = await this.prisma.testSession.findMany({
+            where: {
+                assignment: {
+                    patientId: patient.id,
+                },
+            },
+            include: {
+                assignment: {
+                    include: {
+                        trainer: true,
+                    },
+                },
+            },
+            orderBy: {
+                startedAt: 'desc',
+            },
+        });
+        return sessions.map((session, index) => {
+            const trainer = session.assignment.trainer;
+            const sectionParts = trainer.section.split('.');
+            const categoryNumber = sectionParts[0] || '';
+            const subsectionNumber = sectionParts[1] || '';
+            const categoryMap = {
+                '1': 'Тесты',
+                '2': 'Буквы',
+                '3': 'Слоги',
+                '4': 'Слова',
+                '5': 'Грамматика',
+            };
+            const sectionMap = {
+                '1.1': 'Известные ряды понятий',
+                '1.2': 'Работа с изображениями',
+                '2.1': 'Составление слов из букв',
+                '3.1': 'Составление слов из слогов',
+                '4.1': 'Антонимы и синонимы',
+                '5.1': 'Число (единственное и множественное)',
+            };
+            const category = categoryMap[categoryNumber] || 'Тесты';
+            const section = sectionMap[trainer.section] || trainer.section || 'Не указано';
+            const subsection = trainer.description || trainer.title || 'Не указано';
+            let trainerNumber = 119;
+            if (trainer.id) {
+                const hash = trainer.id.split('').reduce((acc, char) => {
+                    return ((acc << 5) - acc) + char.charCodeAt(0);
+                }, 0);
+                trainerNumber = Math.abs(hash) % 1000;
+                if (trainerNumber < 100)
+                    trainerNumber += 100;
+            }
+            const sessionsForTrainer = sessions
+                .filter(s => s.assignment.trainerId === trainer.id)
+                .sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime());
+            const sessionIndex = sessionsForTrainer.findIndex(s => s.id === session.id);
+            const taskNumber = sessionIndex >= 0 ? sessionIndex + 1 : 1;
+            const taskId = `${trainerNumber}-${taskNumber}`;
+            return {
+                id: session.id,
+                date: session.startedAt.toISOString().split('T')[0],
+                time: session.startedAt.toTimeString().split(' ')[0].slice(0, 5),
+                category,
+                section,
+                subsection,
+                taskId,
+                correct: session.finishedAt ? session.correct : null,
+                incorrect: session.finishedAt ? session.incorrect : null,
+                startedAt: session.startedAt,
+                finishedAt: session.finishedAt,
+            };
+        });
+    }
 };
 exports.PatientService = PatientService;
 exports.PatientService = PatientService = __decorate([

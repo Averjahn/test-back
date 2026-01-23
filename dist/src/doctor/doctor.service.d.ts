@@ -3,32 +3,15 @@ export declare class DoctorService {
     private prisma;
     constructor(prisma: PrismaService);
     getPatients(doctorUserId: string): Promise<({
-        user: {
-            id: string;
-            email: string;
-            login: string;
-            firstName: string | null;
-            lastName: string | null;
-            middleName: string | null;
-        };
-        tariff: {
-            id: string;
-            createdAt: Date;
-            title: string;
-            price: number;
-            discount: number;
-            imageUrl: string | null;
-            updatedAt: Date;
-        } | null;
         assignments: ({
             trainer: {
                 id: string;
                 createdAt: Date;
-                description: string | null;
                 title: string;
-                updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
+                updatedAt: Date;
             };
             sessions: {
                 id: string;
@@ -46,6 +29,23 @@ export declare class DoctorService {
             patientId: string;
             trainerId: string;
         })[];
+        user: {
+            id: string;
+            email: string;
+            firstName: string | null;
+            lastName: string | null;
+            middleName: string | null;
+            login: string;
+        };
+        tariff: {
+            id: string;
+            createdAt: Date;
+            title: string;
+            updatedAt: Date;
+            price: number;
+            discount: number;
+            imageUrl: string | null;
+        } | null;
     } & {
         id: string;
         userId: string;
@@ -60,10 +60,10 @@ export declare class DoctorService {
             user: {
                 id: string;
                 email: string;
-                login: string;
                 firstName: string | null;
                 lastName: string | null;
                 middleName: string | null;
+                login: string;
             };
         } & {
             id: string;
@@ -77,11 +77,11 @@ export declare class DoctorService {
         trainer: {
             id: string;
             createdAt: Date;
-            description: string | null;
             title: string;
-            updatedAt: Date;
+            description: string | null;
             iframeUrl: string;
             section: string;
+            updatedAt: Date;
         };
     } & {
         id: string;
@@ -91,39 +91,15 @@ export declare class DoctorService {
         trainerId: string;
     }>;
     getPatientData(doctorUserId: string, patientId: string): Promise<{
-        user: {
-            id: string;
-            email: string;
-            login: string;
-            firstName: string | null;
-            lastName: string | null;
-            middleName: string | null;
-        };
-        tariff: {
-            id: string;
-            createdAt: Date;
-            title: string;
-            price: number;
-            discount: number;
-            imageUrl: string | null;
-            updatedAt: Date;
-        } | null;
-        medicalData: {
-            id: string;
-            type: string;
-            createdAt: Date;
-            patientId: string;
-            data: import("@prisma/client/runtime/client").JsonValue;
-        }[];
         assignments: ({
             trainer: {
                 id: string;
                 createdAt: Date;
-                description: string | null;
                 title: string;
-                updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
+                updatedAt: Date;
             };
             sessions: {
                 id: string;
@@ -141,6 +117,30 @@ export declare class DoctorService {
             patientId: string;
             trainerId: string;
         })[];
+        user: {
+            id: string;
+            email: string;
+            firstName: string | null;
+            lastName: string | null;
+            middleName: string | null;
+            login: string;
+        };
+        tariff: {
+            id: string;
+            createdAt: Date;
+            title: string;
+            updatedAt: Date;
+            price: number;
+            discount: number;
+            imageUrl: string | null;
+        } | null;
+        medicalData: {
+            id: string;
+            createdAt: Date;
+            patientId: string;
+            data: import("@prisma/client/runtime/client").JsonValue;
+            type: string;
+        }[];
     } & {
         id: string;
         userId: string;
@@ -152,16 +152,27 @@ export declare class DoctorService {
     }>;
     createMedicalData(doctorUserId: string, patientId: string, type: string, data: any): Promise<{
         id: string;
-        type: string;
         createdAt: Date;
         patientId: string;
         data: import("@prisma/client/runtime/client").JsonValue;
+        type: string;
     }>;
     deleteMedicalData(doctorUserId: string, patientId: string, medicalDataId: string): Promise<{
         id: string;
-        type: string;
         createdAt: Date;
         patientId: string;
         data: import("@prisma/client/runtime/client").JsonValue;
+        type: string;
     }>;
+    getPatientDiary(doctorUserId: string, patientId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        patientId: string;
+        updatedAt: Date;
+        date: Date;
+        weather: string;
+        mood: string;
+        wellbeing: string;
+        content: string;
+    }[]>;
 }

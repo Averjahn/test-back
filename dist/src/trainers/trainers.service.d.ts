@@ -5,9 +5,9 @@ export declare class TrainersService {
     findAll(section?: string): Promise<{
         id: string;
         createdAt: Date;
-        description: string | null;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }[]>;
@@ -17,42 +17,42 @@ export declare class TrainersService {
                 user: {
                     id: string;
                     email: string;
-                    login: string;
                     firstName: string | null;
                     lastName: string | null;
                     middleName: string | null;
+                    login: string;
                 };
             } & {
                 id: string;
-                userId: string;
                 createdAt: Date;
                 birthDate: Date | null;
                 avatarUrl: string | null;
                 trustedContact: string | null;
                 tariffId: string | null;
+                userId: string;
             };
         } & {
             id: string;
             createdAt: Date;
-            doctorId: string;
             patientId: string;
+            doctorId: string;
             trainerId: string;
         })[];
     } & {
         id: string;
         createdAt: Date;
-        description: string | null;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;
     findBySection(section: string): Promise<{
         id: string;
         createdAt: Date;
-        description: string | null;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }[]>;
@@ -65,9 +65,9 @@ export declare class TrainersService {
     }): Promise<{
         id: string;
         createdAt: Date;
-        description: string | null;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;
@@ -79,18 +79,18 @@ export declare class TrainersService {
     }): Promise<{
         id: string;
         createdAt: Date;
-        description: string | null;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;
     delete(id: string): Promise<{
         id: string;
         createdAt: Date;
-        description: string | null;
         title: string;
         updatedAt: Date;
+        description: string | null;
         iframeUrl: string;
         section: string;
     }>;

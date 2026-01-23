@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const path_1 = require("path");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app_module_1 = require("./app.module");
 async function bootstrap() {
@@ -17,6 +18,9 @@ async function bootstrap() {
         transform: true,
     }));
     app.use((0, cookie_parser_1.default)());
+    app.useStaticAssets((0, path_1.join)(process.cwd(), 'uploads'), {
+        prefix: '/uploads/',
+    });
     const allowedOrigins = [
         'http://localhost:3001',
         'http://localhost:5173',
@@ -36,6 +40,10 @@ async function bootstrap() {
                 console.log('CORS: ✅ Vercel.app domain - allowing:', origin);
                 return callback(null, true);
             }
+            if (origin.includes('onrender.com')) {
+                console.log('CORS: ✅ Render.com domain - allowing:', origin);
+                return callback(null, true);
+            }
             if (origin.includes('ngrok.io') || origin.includes('ngrok-free.app') || origin.includes('ngrok.app')) {
                 console.log('CORS: ✅ Ngrok domain - allowing:', origin);
                 return callback(null, true);
@@ -46,6 +54,14 @@ async function bootstrap() {
             }
             if (origin.includes('loca.lt') || origin.includes('localtunnel.me')) {
                 console.log('CORS: ✅ Localtunnel domain - allowing:', origin);
+                return callback(null, true);
+            }
+            if (origin.includes('tuna.am')) {
+                console.log('CORS: ✅ Tuna.am domain - allowing:', origin);
+                return callback(null, true);
+            }
+            if (origin.includes('trycloudflare.com') || origin.includes('cloudflare.com')) {
+                console.log('CORS: ✅ Cloudflare tunnel domain - allowing:', origin);
                 return callback(null, true);
             }
             if (allowedOrigins.includes(origin)) {

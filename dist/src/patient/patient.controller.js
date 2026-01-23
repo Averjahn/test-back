@@ -33,11 +33,17 @@ let PatientController = class PatientController {
     async getTrainers(user) {
         return this.patientService.getTrainers(user.id);
     }
+    async getAssignments(user) {
+        return this.patientService.getAssignments(user.id);
+    }
     async getMedicalData(user) {
         return this.patientService.getMedicalData(user.id);
     }
     async updateTariff(user, dto) {
         return this.patientService.updateTariff(user.id, dto.tariffId);
+    }
+    async getAchievements(user) {
+        return this.patientService.getAchievements(user.id);
     }
 };
 exports.PatientController = PatientController;
@@ -64,6 +70,17 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "getTrainers", null);
 __decorate([
+    (0, common_1.Get)('assignments'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get doctor assignments' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of doctor assignments' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden (Patient only)' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Patient profile not found' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "getAssignments", null);
+__decorate([
     (0, common_1.Get)('medical-data'),
     (0, swagger_1.ApiOperation)({ summary: 'Get medical data' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'List of medical data records' }),
@@ -88,6 +105,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_tariff_dto_1.UpdateTariffDto]),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "updateTariff", null);
+__decorate([
+    (0, common_1.Get)('achievements'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get patient achievements (test statistics)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of test sessions with statistics' }),
+    (0, swagger_1.ApiResponse)({ status: 403, description: 'Forbidden (Patient only)' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Patient profile not found' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "getAchievements", null);
 exports.PatientController = PatientController = __decorate([
     (0, swagger_1.ApiTags)('patient'),
     (0, common_1.Controller)('patient'),

@@ -9,19 +9,19 @@ export declare class TestsController {
     startSession(user: User, dto: StartSessionDto): Promise<({
         assignment: {
             trainer: {
-                description: string | null;
                 id: string;
                 createdAt: Date;
                 title: string;
                 updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
             };
         } & {
             id: string;
             createdAt: Date;
-            doctorId: string;
             patientId: string;
+            doctorId: string;
             trainerId: string;
         };
     } & {
@@ -35,51 +35,107 @@ export declare class TestsController {
     }) | {
         id: string;
         assignmentId: string;
-        startedAt: Date;
+        startedAt: string;
         finishedAt: null;
         correct: number;
         incorrect: number;
         durationSec: number;
+        answers: never[];
+        questions: never[];
         assignment: {
             id: string;
+            patientId: null;
+            doctorId: null;
+            trainerId: string;
+            createdAt: string;
+            patient: null;
+            doctor: null;
             trainer: {
                 id: string;
                 title: string;
+                description: string;
+                iframeUrl: string;
                 section: string;
+                createdAt: string;
+                updatedAt: string;
+                questions: never[];
             };
         };
     }>;
     submitAnswer(user: User, dto: SubmitAnswerDto): Promise<{
         id: string;
         createdAt: Date;
-        answer: import("@prisma/client/runtime/client").JsonValue;
         questionId: string;
+        answer: import("@prisma/client/runtime/client").JsonValue;
+        isCorrect: boolean;
+        sessionId: string;
+    }>;
+    submitAnswerAlias(user: User, dto: SubmitAnswerDto): Promise<{
+        id: string;
+        createdAt: Date;
+        questionId: string;
+        answer: import("@prisma/client/runtime/client").JsonValue;
         isCorrect: boolean;
         sessionId: string;
     }>;
     finishSession(user: User, dto: FinishSessionDto): Promise<{
         assignment: {
             trainer: {
-                description: string | null;
                 id: string;
                 createdAt: Date;
                 title: string;
                 updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
             };
         } & {
             id: string;
             createdAt: Date;
-            doctorId: string;
             patientId: string;
+            doctorId: string;
             trainerId: string;
         };
         answers: {
             id: string;
             createdAt: Date;
-            answer: import("@prisma/client/runtime/client").JsonValue;
             questionId: string;
+            answer: import("@prisma/client/runtime/client").JsonValue;
+            isCorrect: boolean;
+            sessionId: string;
+        }[];
+    } & {
+        id: string;
+        startedAt: Date;
+        finishedAt: Date | null;
+        correct: number;
+        incorrect: number;
+        durationSec: number;
+        assignmentId: string;
+    }>;
+    completeSessionAlias(user: User, dto: FinishSessionDto): Promise<{
+        assignment: {
+            trainer: {
+                id: string;
+                createdAt: Date;
+                title: string;
+                updatedAt: Date;
+                description: string | null;
+                iframeUrl: string;
+                section: string;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            patientId: string;
+            doctorId: string;
+            trainerId: string;
+        };
+        answers: {
+            id: string;
+            createdAt: Date;
+            questionId: string;
+            answer: import("@prisma/client/runtime/client").JsonValue;
             isCorrect: boolean;
             sessionId: string;
         }[];

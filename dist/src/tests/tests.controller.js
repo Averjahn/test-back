@@ -31,22 +31,36 @@ let TestsController = class TestsController {
         console.log('Start session request:', { userId: user.id, role: user.role, assignmentId: dto.assignmentId });
         if (dto.assignmentId === 'preview') {
             console.log('Preview mode - returning mock session');
+            const now = new Date().toISOString();
             return {
                 id: 'preview-session-' + Date.now(),
                 assignmentId: 'preview',
-                startedAt: new Date(),
+                startedAt: now,
                 finishedAt: null,
                 correct: 0,
                 incorrect: 0,
                 durationSec: 0,
+                answers: [],
+                questions: [],
                 assignment: {
                     id: 'preview',
+                    patientId: null,
+                    doctorId: null,
+                    trainerId: 'preview-trainer',
+                    createdAt: now,
+                    patient: null,
+                    doctor: null,
                     trainer: {
                         id: 'preview-trainer',
                         title: 'Preview Mode',
-                        section: '1.1'
-                    }
-                }
+                        description: 'Preview mode for doctors and admins',
+                        iframeUrl: '',
+                        section: '1.1',
+                        createdAt: now,
+                        updatedAt: now,
+                        questions: [],
+                    },
+                },
             };
         }
         if (user.role !== client_1.UserRole.PATIENT) {
@@ -57,8 +71,14 @@ let TestsController = class TestsController {
     async submitAnswer(user, dto) {
         return this.testsService.submitAnswer(user.id, dto.sessionId, dto.questionId, dto.answer, dto.isCorrect);
     }
+    async submitAnswerAlias(user, dto) {
+        return this.submitAnswer(user, dto);
+    }
     async finishSession(user, dto) {
         return this.testsService.finishSession(user.id, dto.sessionId);
+    }
+    async completeSessionAlias(user, dto) {
+        return this.finishSession(user, dto);
     }
 };
 exports.TestsController = TestsController;
@@ -91,6 +111,16 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TestsController.prototype, "submitAnswer", null);
 __decorate([
+    (0, common_1.Post)('submit-answer'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    (0, swagger_1.ApiOperation)({ summary: 'Submit answer to question (alias)' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, submit_answer_dto_1.SubmitAnswerDto]),
+    __metadata("design:returntype", Promise)
+], TestsController.prototype, "submitAnswerAlias", null);
+__decorate([
     (0, common_1.Post)('finish'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Finish test session' }),
@@ -104,6 +134,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, finish_session_dto_1.FinishSessionDto]),
     __metadata("design:returntype", Promise)
 ], TestsController.prototype, "finishSession", null);
+__decorate([
+    (0, common_1.Post)('complete-session'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Complete test session (alias)' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, finish_session_dto_1.FinishSessionDto]),
+    __metadata("design:returntype", Promise)
+], TestsController.prototype, "completeSessionAlias", null);
 exports.TestsController = TestsController = __decorate([
     (0, swagger_1.ApiTags)('tests'),
     (0, common_1.Controller)('tests'),

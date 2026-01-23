@@ -7,28 +7,28 @@ export declare class PatientsController {
     create(dto: CreatePatientDto): Promise<{
         id: string;
         createdAt: Date;
-        userId: string;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
         tariffId: string | null;
+        userId: string;
     }>;
     findAll(user: User): Promise<{
         id: string;
         createdAt: Date;
-        userId: string;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
         tariffId: string | null;
+        userId: string;
     }[]>;
     findById(id: string): Promise<{
         id: string;
         createdAt: Date;
-        userId: string;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
         tariffId: string | null;
+        userId: string;
     } | null>;
 }

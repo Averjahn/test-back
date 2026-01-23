@@ -7,8 +7,8 @@ export declare class TariffsService {
             id: string;
             createdAt: Date;
             tariffId: string;
-            description: string | null;
             title: string;
+            description: string | null;
         }[];
     } & {
         id: string;

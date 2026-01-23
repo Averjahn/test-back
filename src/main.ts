@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Глобальный префикс API
   app.setGlobalPrefix('api');
@@ -21,6 +23,11 @@ async function bootstrap() {
 
   // Cookie parser для JWT в HttpOnly cookies
   app.use(cookieParser());
+
+  // Настройка статических файлов для загруженных документов
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // CORS настройка - ЯВНЫЙ ALLOWLIST (рекомендуемый подход)
   // КРИТИЧЕСКИ ВАЖНО: С credentials: true нельзя использовать wildcard '*'

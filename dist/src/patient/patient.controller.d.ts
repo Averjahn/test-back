@@ -36,29 +36,29 @@ export declare class PatientController {
         })[];
         tariff: ({
             options: {
-                description: string | null;
-                title: string;
-                tariffId: string;
                 id: string;
                 createdAt: Date;
+                tariffId: string;
+                title: string;
+                description: string | null;
             }[];
         } & {
-            title: string;
             id: string;
             createdAt: Date;
+            title: string;
             price: number;
             discount: number;
             imageUrl: string | null;
             updatedAt: Date;
         }) | null;
     } & {
-        tariffId: string | null;
         id: string;
         createdAt: Date;
-        userId: string;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
+        tariffId: string | null;
+        userId: string;
     }>;
     getTrainers(user: User): Promise<({
         doctor: {
@@ -76,22 +76,22 @@ export declare class PatientController {
             userId: string;
         };
         trainer: {
-            description: string | null;
-            title: string;
             id: string;
             createdAt: Date;
+            title: string;
             updatedAt: Date;
+            description: string | null;
             iframeUrl: string;
             section: string;
         };
         sessions: {
             id: string;
             startedAt: Date;
-            assignmentId: string;
             finishedAt: Date | null;
             correct: number;
             incorrect: number;
             durationSec: number;
+            assignmentId: string;
         }[];
     } & {
         id: string;
@@ -100,38 +100,69 @@ export declare class PatientController {
         doctorId: string;
         trainerId: string;
     })[]>;
+    getAssignments(user: User): Promise<{
+        id: string;
+        date: string;
+        recommendation: string;
+        trainer: {
+            id: string;
+            title: string;
+            section: string;
+            description: string | null;
+        };
+        doctor: {
+            id: string;
+            firstName: string | null;
+            lastName: string | null;
+            middleName: string | null;
+        };
+        createdAt: Date;
+    }[]>;
     getMedicalData(user: User): Promise<{
-        type: string;
+        data: import("@prisma/client/runtime/client").JsonValue;
         id: string;
         createdAt: Date;
         patientId: string;
-        data: import("@prisma/client/runtime/client").JsonValue;
+        type: string;
     }[]>;
     updateTariff(user: User, dto: UpdateTariffDto): Promise<{
         tariff: ({
             options: {
-                description: string | null;
-                title: string;
-                tariffId: string;
                 id: string;
                 createdAt: Date;
+                tariffId: string;
+                title: string;
+                description: string | null;
             }[];
         } & {
-            title: string;
             id: string;
             createdAt: Date;
+            title: string;
             price: number;
             discount: number;
             imageUrl: string | null;
             updatedAt: Date;
         }) | null;
     } & {
-        tariffId: string | null;
         id: string;
         createdAt: Date;
-        userId: string;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
+        tariffId: string | null;
+        userId: string;
     }>;
+    getAchievements(user: User): Promise<{
+        id: string;
+        date: string;
+        time: string;
+        category: string;
+        section: string;
+        subsection: string;
+        taskId: string;
+        correct: number | null;
+        incorrect: number | null;
+        startedAt: Date;
+        finishedAt: Date | null;
+    }[]>;
 }

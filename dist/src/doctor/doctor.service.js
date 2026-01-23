@@ -237,6 +237,35 @@ let DoctorService = class DoctorService {
             where: { id: medicalDataId },
         });
     }
+    async getPatientDiary(doctorUserId, patientId) {
+        const doctor = await this.prisma.doctor.findUnique({
+            where: { userId: doctorUserId },
+        });
+        if (!doctor) {
+            throw new common_1.NotFoundException('Doctor profile not found');
+        }
+        const relation = await this.prisma.patientDoctor.findUnique({
+            where: {
+                patientId_doctorId: {
+                    patientId,
+                    doctorId: doctor.id,
+                },
+            },
+        });
+        if (!relation) {
+            throw new common_1.ForbiddenException('You can only access diary of your own patients');
+        }
+        const patient = await this.prisma.patient.findUnique({
+            where: { id: patientId },
+        });
+        if (!patient) {
+            throw new common_1.NotFoundException('Patient not found');
+        }
+        return this.prisma.diaryEntry.findMany({
+            where: { patientId: patient.id },
+            orderBy: { date: 'desc' },
+        });
+    }
 };
 exports.DoctorService = DoctorService;
 exports.DoctorService = DoctorService = __decorate([

@@ -53,6 +53,8 @@ async function main() {
     await prisma.assignment.deleteMany();
     await prisma.medicalData.deleteMany();
     await prisma.diaryEntry.deleteMany();
+    await prisma.appointment.deleteMany();
+    await prisma.appointmentSchedule.deleteMany();
     await prisma.patientDoctor.deleteMany();
     await prisma.patient.deleteMany();
     await prisma.doctor.deleteMany();
@@ -127,6 +129,21 @@ async function main() {
             patient: true,
         },
     });
+    if (doctor.doctor) {
+        const allDays = [0, 1, 2, 3, 4, 5, 6];
+        const doctorId = doctor.doctor.id;
+        await prisma.appointmentSchedule.createMany({
+            data: allDays.map(dayOfWeek => ({
+                doctorId,
+                dayOfWeek,
+                startTime: '08:00',
+                endTime: '17:00',
+                slotDuration: 30,
+                isActive: true,
+            })),
+        });
+        console.log('✅ Created default appointment schedule for doctor (all days, 08:00-17:00, 30 min slots)');
+    }
     if (doctor.doctor && patient1.patient && patient2.patient) {
         await prisma.patientDoctor.createMany({
             data: [
@@ -481,6 +498,31 @@ async function main() {
             },
         })));
         console.log(`✅ Created test session for patient2: ${session2Patient2.correct} correct, ${session2Patient2.incorrect} incorrect, ${Math.floor(session2Patient2Duration / 60)} min`);
+    }
+    const allDoctors = await prisma.doctor.findMany({
+        include: {
+            appointmentSchedules: true,
+        },
+    });
+    let initializedCount = 0;
+    for (const doctor of allDoctors) {
+        if (doctor.appointmentSchedules.length === 0) {
+            const allDays = [0, 1, 2, 3, 4, 5, 6];
+            await prisma.appointmentSchedule.createMany({
+                data: allDays.map(dayOfWeek => ({
+                    doctorId: doctor.id,
+                    dayOfWeek,
+                    startTime: '08:00',
+                    endTime: '17:00',
+                    slotDuration: 30,
+                    isActive: true,
+                })),
+            });
+            initializedCount++;
+        }
+    }
+    if (initializedCount > 0) {
+        console.log(`✅ Initialized default schedules for ${initializedCount} doctor(s) without schedules`);
     }
     console.log('\n✅ Seed completed.');
     console.log('\n📋 Test users:');

@@ -7,27 +7,27 @@ export declare class TestsService {
             trainer: {
                 id: string;
                 createdAt: Date;
-                description: string | null;
                 title: string;
                 updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
             };
         } & {
             id: string;
             createdAt: Date;
-            doctorId: string;
             patientId: string;
+            doctorId: string;
             trainerId: string;
         };
     } & {
         id: string;
         startedAt: Date;
-        assignmentId: string;
         finishedAt: Date | null;
         correct: number;
         incorrect: number;
         durationSec: number;
+        assignmentId: string;
     }>;
     submitAnswer(userId: string, sessionId: string, questionId: string, answer: any, isCorrect: boolean): Promise<{
         id: string;
@@ -42,17 +42,17 @@ export declare class TestsService {
             trainer: {
                 id: string;
                 createdAt: Date;
-                description: string | null;
                 title: string;
                 updatedAt: Date;
+                description: string | null;
                 iframeUrl: string;
                 section: string;
             };
         } & {
             id: string;
             createdAt: Date;
-            doctorId: string;
             patientId: string;
+            doctorId: string;
             trainerId: string;
         };
         answers: {
@@ -66,10 +66,10 @@ export declare class TestsService {
     } & {
         id: string;
         startedAt: Date;
-        assignmentId: string;
         finishedAt: Date | null;
         correct: number;
         incorrect: number;
         durationSec: number;
+        assignmentId: string;
     }>;
 }

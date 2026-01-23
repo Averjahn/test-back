@@ -42,6 +42,9 @@ model Patient {
   diaryEntries   DiaryEntry[]
   medicalData    MedicalData[]
   doctors        PatientDoctor[]
+  documents      Document[]
+  hiddenDocuments HiddenDocument[]
+  appointments   Appointment[]
   tariff         Tariff?         @relation(fields: [tariffId], references: [id])
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -49,12 +52,14 @@ model Patient {
 }
 
 model Doctor {
-  id          String          @id(map: "doctor_profiles_pkey") @default(uuid())
-  userId      String          @unique(map: "doctor_profiles_userId_key")
-  createdAt   DateTime        @default(now())
-  assignments Assignment[]
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  patients    PatientDoctor[]
+  id                String              @id(map: "doctor_profiles_pkey") @default(uuid())
+  userId            String              @unique(map: "doctor_profiles_userId_key")
+  createdAt         DateTime            @default(now())
+  assignments       Assignment[]
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patients          PatientDoctor[]
+  appointmentSchedules AppointmentSchedule[]
+  appointments      Appointment[]
 
   @@map("doctors")
 }
@@ -171,6 +176,63 @@ model DiaryEntry {
   patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade, map: "diary_entries_patientid_fkey")
 
   @@map("diary_entries")
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  patientId String
+  title     String
+  type      String
+  fileUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model HiddenDocument {
+  id        String   @id @default(uuid())
+  patientId String
+  documentId String  // ID динамического документа (например, act-xxx-yyy)
+  createdAt DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, documentId])
+  @@map("hidden_documents")
+}
+
+model AppointmentSchedule {
+  id        String   @id @default(uuid())
+  doctorId  String
+  dayOfWeek Int      // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime String   // Format: "HH:mm" (e.g., "09:00")
+  endTime   String   // Format: "HH:mm" (e.g., "17:00")
+  slotDuration Int    // Duration in minutes (e.g., 30)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@map("appointment_schedules")
+}
+
+model Appointment {
+  id        String   @id @default(uuid())
+  patientId String
+  doctorId  String
+  date      DateTime // Date of appointment
+  startTime String   // Format: "HH:mm" (e.g., "09:00")
+  endTime   String   // Format: "HH:mm" (e.g., "09:30")
+  type      String   @default("first") // "first" (впервые) or "repeat" (повторно)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, date, startTime])
+  @@map("appointments")
 }
 
 enum UserRole {

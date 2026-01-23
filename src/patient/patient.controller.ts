@@ -42,6 +42,15 @@ export class PatientController {
     return this.patientService.getTrainers(user.id);
   }
 
+  @Get('assignments')
+  @ApiOperation({ summary: 'Get doctor assignments' })
+  @ApiResponse({ status: 200, description: 'List of doctor assignments' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Patient only)' })
+  @ApiResponse({ status: 404, description: 'Patient profile not found' })
+  async getAssignments(@CurrentUser() user: User) {
+    return this.patientService.getAssignments(user.id);
+  }
+
   @Get('medical-data')
   @ApiOperation({ summary: 'Get medical data' })
   @ApiResponse({ status: 200, description: 'List of medical data records' })
@@ -60,5 +69,14 @@ export class PatientController {
   @ApiResponse({ status: 404, description: 'Patient or tariff not found' })
   async updateTariff(@CurrentUser() user: User, @Body() dto: UpdateTariffDto) {
     return this.patientService.updateTariff(user.id, dto.tariffId);
+  }
+
+  @Get('achievements')
+  @ApiOperation({ summary: 'Get patient achievements (test statistics)' })
+  @ApiResponse({ status: 200, description: 'List of test sessions with statistics' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Patient only)' })
+  @ApiResponse({ status: 404, description: 'Patient profile not found' })
+  async getAchievements(@CurrentUser() user: User) {
+    return this.patientService.getAchievements(user.id);
   }
 }
