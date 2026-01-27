@@ -63,6 +63,44 @@ let PatientService = class PatientService {
         }
         return patient;
     }
+    async updateProfile(patientUserId, data) {
+        const patient = await this.prisma.patient.findUnique({
+            where: { userId: patientUserId },
+        });
+        if (!patient) {
+            throw new common_1.NotFoundException('Patient profile not found');
+        }
+        const userUpdateData = {};
+        if (data.firstName !== undefined)
+            userUpdateData.firstName = data.firstName || null;
+        if (data.lastName !== undefined)
+            userUpdateData.lastName = data.lastName || null;
+        if (data.middleName !== undefined)
+            userUpdateData.middleName = data.middleName || null;
+        const patientUpdateData = {};
+        if (data.birthDate !== undefined) {
+            patientUpdateData.birthDate = data.birthDate ? new Date(data.birthDate) : null;
+        }
+        if (data.avatarUrl !== undefined) {
+            patientUpdateData.avatarUrl = data.avatarUrl;
+        }
+        if (data.trustedContact !== undefined) {
+            patientUpdateData.trustedContact = data.trustedContact || null;
+        }
+        await this.prisma.$transaction(async (tx) => {
+            if (Object.keys(userUpdateData).length > 0) {
+                await tx.user.update({
+                    where: { id: patientUserId },
+                    data: userUpdateData,
+                });
+            }
+            await tx.patient.update({
+                where: { userId: patientUserId },
+                data: patientUpdateData,
+            });
+        });
+        return this.getProfile(patientUserId);
+    }
     async getTrainers(patientUserId) {
         const patient = await this.prisma.patient.findUnique({
             where: { userId: patientUserId },

@@ -6,32 +6,6 @@ export declare class DoctorController {
     private doctorService;
     constructor(doctorService: DoctorService);
     getPatients(user: User): Promise<({
-        assignments: ({
-            trainer: {
-                id: string;
-                createdAt: Date;
-                title: string;
-                description: string | null;
-                iframeUrl: string;
-                section: string;
-                updatedAt: Date;
-            };
-            sessions: {
-                id: string;
-                startedAt: Date;
-                assignmentId: string;
-                finishedAt: Date | null;
-                correct: number;
-                incorrect: number;
-                durationSec: number;
-            }[];
-        } & {
-            id: string;
-            createdAt: Date;
-            doctorId: string;
-            patientId: string;
-            trainerId: string;
-        })[];
         user: {
             id: string;
             email: string;
@@ -40,23 +14,49 @@ export declare class DoctorController {
             middleName: string | null;
             login: string;
         };
+        assignments: ({
+            trainer: {
+                id: string;
+                createdAt: Date;
+                title: string;
+                updatedAt: Date;
+                description: string | null;
+                iframeUrl: string;
+                section: string;
+            };
+            sessions: {
+                id: string;
+                startedAt: Date;
+                finishedAt: Date | null;
+                correct: number;
+                incorrect: number;
+                durationSec: number;
+                assignmentId: string;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            patientId: string;
+            doctorId: string;
+            trainerId: string;
+        })[];
         tariff: {
             id: string;
             createdAt: Date;
             title: string;
-            updatedAt: Date;
             price: number;
             discount: number;
             imageUrl: string | null;
+            updatedAt: Date;
         } | null;
     } & {
         id: string;
-        userId: string;
         createdAt: Date;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
         tariffId: string | null;
+        userId: string;
     })[]>;
     assignTrainer(user: User, dto: AssignTrainerDto): Promise<{
         patient: {
@@ -70,56 +70,30 @@ export declare class DoctorController {
             };
         } & {
             id: string;
-            userId: string;
             createdAt: Date;
             birthDate: Date | null;
             avatarUrl: string | null;
             trustedContact: string | null;
             tariffId: string | null;
+            userId: string;
         };
         trainer: {
             id: string;
             createdAt: Date;
             title: string;
+            updatedAt: Date;
             description: string | null;
             iframeUrl: string;
             section: string;
-            updatedAt: Date;
         };
     } & {
         id: string;
         createdAt: Date;
-        doctorId: string;
         patientId: string;
+        doctorId: string;
         trainerId: string;
     }>;
     getPatientData(user: User, patientId: string): Promise<{
-        assignments: ({
-            trainer: {
-                id: string;
-                createdAt: Date;
-                title: string;
-                description: string | null;
-                iframeUrl: string;
-                section: string;
-                updatedAt: Date;
-            };
-            sessions: {
-                id: string;
-                startedAt: Date;
-                assignmentId: string;
-                finishedAt: Date | null;
-                correct: number;
-                incorrect: number;
-                durationSec: number;
-            }[];
-        } & {
-            id: string;
-            createdAt: Date;
-            doctorId: string;
-            patientId: string;
-            trainerId: string;
-        })[];
         user: {
             id: string;
             email: string;
@@ -128,50 +102,76 @@ export declare class DoctorController {
             middleName: string | null;
             login: string;
         };
+        assignments: ({
+            trainer: {
+                id: string;
+                createdAt: Date;
+                title: string;
+                updatedAt: Date;
+                description: string | null;
+                iframeUrl: string;
+                section: string;
+            };
+            sessions: {
+                id: string;
+                startedAt: Date;
+                finishedAt: Date | null;
+                correct: number;
+                incorrect: number;
+                durationSec: number;
+                assignmentId: string;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            patientId: string;
+            doctorId: string;
+            trainerId: string;
+        })[];
+        medicalData: {
+            data: import("@prisma/client/runtime/client").JsonValue;
+            id: string;
+            createdAt: Date;
+            patientId: string;
+            type: string;
+        }[];
         tariff: {
             id: string;
             createdAt: Date;
             title: string;
-            updatedAt: Date;
             price: number;
             discount: number;
             imageUrl: string | null;
+            updatedAt: Date;
         } | null;
-        medicalData: {
-            id: string;
-            createdAt: Date;
-            patientId: string;
-            data: import("@prisma/client/runtime/client").JsonValue;
-            type: string;
-        }[];
     } & {
         id: string;
-        userId: string;
         createdAt: Date;
         birthDate: Date | null;
         avatarUrl: string | null;
         trustedContact: string | null;
         tariffId: string | null;
+        userId: string;
     }>;
     createMedicalData(user: User, patientId: string, dto: CreateMedicalDataDto): Promise<{
+        data: import("@prisma/client/runtime/client").JsonValue;
         id: string;
         createdAt: Date;
         patientId: string;
-        data: import("@prisma/client/runtime/client").JsonValue;
         type: string;
     }>;
     deleteMedicalData(user: User, patientId: string, medicalDataId: string): Promise<{
+        data: import("@prisma/client/runtime/client").JsonValue;
         id: string;
         createdAt: Date;
         patientId: string;
-        data: import("@prisma/client/runtime/client").JsonValue;
         type: string;
     }>;
     getPatientDiary(user: User, patientId: string): Promise<{
         id: string;
         createdAt: Date;
-        patientId: string;
         updatedAt: Date;
+        patientId: string;
         date: Date;
         weather: string;
         mood: string;

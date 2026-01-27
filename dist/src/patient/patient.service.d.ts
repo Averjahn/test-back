@@ -58,6 +58,69 @@ export declare class PatientService {
         tariffId: string | null;
         userId: string;
     }>;
+    updateProfile(patientUserId: string, data: {
+        firstName?: string;
+        lastName?: string;
+        middleName?: string;
+        birthDate?: string;
+        trustedContact?: string;
+        avatarUrl?: string | null;
+    }): Promise<{
+        user: {
+            id: string;
+            email: string;
+            role: import("@prisma/client").$Enums.UserRole;
+            firstName: string | null;
+            lastName: string | null;
+            middleName: string | null;
+            createdAt: Date;
+            login: string;
+        };
+        doctors: ({
+            doctor: {
+                user: {
+                    id: string;
+                    email: string;
+                    firstName: string | null;
+                    lastName: string | null;
+                    middleName: string | null;
+                    login: string;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                userId: string;
+            };
+        } & {
+            patientId: string;
+            doctorId: string;
+        })[];
+        tariff: ({
+            options: {
+                id: string;
+                createdAt: Date;
+                tariffId: string;
+                title: string;
+                description: string | null;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            title: string;
+            price: number;
+            discount: number;
+            imageUrl: string | null;
+            updatedAt: Date;
+        }) | null;
+    } & {
+        id: string;
+        createdAt: Date;
+        birthDate: Date | null;
+        avatarUrl: string | null;
+        trustedContact: string | null;
+        tariffId: string | null;
+        userId: string;
+    }>;
     getTrainers(patientUserId: string): Promise<({
         doctor: {
             user: {

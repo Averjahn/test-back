@@ -7,9 +7,25 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const path_1 = require("path");
+const fs_1 = require("fs");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const app_module_1 = require("./app.module");
 async function bootstrap() {
+    const uploadsDir = (0, path_1.join)(process.cwd(), 'uploads');
+    const documentsDir = (0, path_1.join)(uploadsDir, 'documents');
+    const diaryDir = (0, path_1.join)(uploadsDir, 'diary');
+    const avatarsDir = (0, path_1.join)(uploadsDir, 'avatars');
+    [uploadsDir, documentsDir, diaryDir, avatarsDir].forEach((dir) => {
+        if (!(0, fs_1.existsSync)(dir)) {
+            try {
+                (0, fs_1.mkdirSync)(dir, { recursive: true });
+                console.log(`Created directory: ${dir}`);
+            }
+            catch (error) {
+                console.error(`Failed to create directory ${dir}:`, error);
+            }
+        }
+    });
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new common_1.ValidationPipe({

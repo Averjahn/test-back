@@ -56,8 +56,8 @@ export declare class AdminService {
         userId: string;
     }) | null>;
     assignDoctor(patientId: string, doctorId: string): Promise<{
-        doctorId: string;
         patientId: string;
+        doctorId: string;
     }>;
     createTariff(data: {
         title: string;
@@ -144,8 +144,8 @@ export declare class AdminService {
     } & {
         id: string;
         createdAt: Date;
-        doctorId: string;
         patientId: string;
+        doctorId: string;
         trainerId: string;
     }>;
     getPatientDocuments(patientId: string): Promise<{
@@ -164,9 +164,9 @@ export declare class AdminService {
     }): Promise<{
         id: string;
         createdAt: Date;
-        patientId: string;
         title: string;
         updatedAt: Date;
+        patientId: string;
         type: string;
         fileUrl: string | null;
     }>;
@@ -219,13 +219,13 @@ export declare class AdminService {
     } & {
         id: string;
         createdAt: Date;
-        doctorId: string;
-        patientId: string;
         updatedAt: Date;
-        type: string;
+        patientId: string;
+        doctorId: string;
         date: Date;
         startTime: string;
         endTime: string;
+        type: string;
         notes: string | null;
     }>;
     initializeDefaultSchedulesForAllDoctors(): Promise<{

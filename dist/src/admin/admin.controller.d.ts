@@ -49,8 +49,8 @@ export declare class AdminController {
         userId: string;
     }) | null>;
     assignDoctor(dto: AssignDoctorDto): Promise<{
-        doctorId: string;
         patientId: string;
+        doctorId: string;
     }>;
     createTariff(dto: CreateTariffDto): Promise<{
         options: {
@@ -123,8 +123,8 @@ export declare class AdminController {
     } & {
         id: string;
         createdAt: Date;
-        doctorId: string;
         patientId: string;
+        doctorId: string;
         trainerId: string;
     }>;
     getPatientDocuments(patientId: string): Promise<{
@@ -136,24 +136,26 @@ export declare class AdminController {
         date?: Date;
         amount?: number;
     }[]>;
-    uploadDocument(patientId: string, file: Express.Multer.File, dto: {
+    uploadDocument(patientId: string, file: {
+        filename: string;
+    }, dto: {
         title: string;
         type: string;
     }): Promise<{
         id: string;
         createdAt: Date;
-        patientId: string;
         title: string;
         updatedAt: Date;
+        patientId: string;
         type: string;
         fileUrl: string | null;
     }>;
     createDocument(patientId: string, dto: CreateDocumentDto): Promise<{
         id: string;
         createdAt: Date;
-        patientId: string;
         title: string;
         updatedAt: Date;
+        patientId: string;
         type: string;
         fileUrl: string | null;
     }>;
@@ -200,13 +202,13 @@ export declare class AdminController {
     } & {
         id: string;
         createdAt: Date;
-        doctorId: string;
-        patientId: string;
         updatedAt: Date;
-        type: string;
+        patientId: string;
+        doctorId: string;
         date: Date;
         startTime: string;
         endTime: string;
+        type: string;
         notes: string | null;
     }>;
     initializeDefaultSchedules(): Promise<{
