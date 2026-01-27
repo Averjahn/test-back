@@ -62,7 +62,7 @@ export class PatientService {
       middleName?: string;
       birthDate?: string;
       trustedContact?: string;
-      avatarUrl?: string;
+      avatarUrl?: string | null;
     }
   ) {
     const patient = await this.prisma.patient.findUnique({
@@ -75,45 +75,48 @@ export class PatientService {
 
     // Обновляем данные пользователя (ФИО)
     const userUpdateData: {
-      firstName?: string;
-      lastName?: string;
-      middleName?: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      middleName?: string | null;
     } = {};
     
-    if (data.firstName !== undefined) userUpdateData.firstName = data.firstName;
-    if (data.lastName !== undefined) userUpdateData.lastName = data.lastName;
-    if (data.middleName !== undefined) userUpdateData.middleName = data.middleName;
+    if (data.firstName !== undefined) userUpdateData.firstName = data.firstName || null;
+    if (data.lastName !== undefined) userUpdateData.lastName = data.lastName || null;
+    if (data.middleName !== undefined) userUpdateData.middleName = data.middleName || null;
 
     // Обновляем данные пациента (дата рождения, аватар, доверенный контакт)
     const patientUpdateData: {
-      birthDate?: Date;
-      avatarUrl?: string;
-      trustedContact?: string;
+      birthDate?: Date | null;
+      avatarUrl?: string | null;
+      trustedContact?: string | null;
     } = {};
 
     if (data.birthDate !== undefined) {
       patientUpdateData.birthDate = data.birthDate ? new Date(data.birthDate) : null;
     }
     if (data.avatarUrl !== undefined) {
-      patientUpdateData.avatarUrl = data.avatarUrl || null;
+      patientUpdateData.avatarUrl = data.avatarUrl;
     }
     if (data.trustedContact !== undefined) {
       patientUpdateData.trustedContact = data.trustedContact || null;
     }
 
     // Обновляем пользователя и пациента в транзакции
-    const [updatedUser, updatedPatient] = await this.prisma.$transaction([
-      Object.keys(userUpdateData).length > 0
-        ? this.prisma.user.update({
-            where: { id: patientUserId },
-            data: userUpdateData,
-          })
-        : Promise.resolve(null),
-      this.prisma.patient.update({
+    await this.prisma.$transaction(async (tx) => {
+      // Обновляем пользователя, если есть изменения
+      if (Object.keys(userUpdateData).length > 0) {
+        await tx.user.update({
+          where: { id: patientUserId },
+          data: userUpdateData,
+        });
+      }
+
+      // Обновляем пациента
+      await tx.patient.update({
         where: { userId: patientUserId },
         data: patientUpdateData,
-      }),
-    ]);
+      });
+    });
 
     // Возвращаем обновленный профиль
     return this.getProfile(patientUserId);
