@@ -73,7 +73,11 @@ let AuthService = class AuthService {
         return userWithoutPassword;
     }
     async login(user) {
-        const payload = { email: user.email, sub: user.id, role: user.role };
+        const payload = {
+            email: user.email,
+            sub: user.id,
+            role: user.role
+        };
         return {
             access_token: this.jwtService.sign(payload),
             user: {
@@ -90,7 +94,11 @@ let AuthService = class AuthService {
         if (!user || !user.id || !user.email) {
             throw new common_1.UnauthorizedException('Invalid user data');
         }
-        const payload = { email: user.email, sub: user.id, role: user.role };
+        const payload = {
+            email: user.email,
+            sub: user.id,
+            role: user.role
+        };
         return this.jwtService.sign(payload);
     }
 };

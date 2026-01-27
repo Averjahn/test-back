@@ -76,10 +76,6 @@ async function bootstrap() {
                 console.log('CORS: ✅ Tuna.am domain - allowing:', origin);
                 return callback(null, true);
             }
-            if (origin.includes('trycloudflare.com') || origin.includes('cloudflare.com')) {
-                console.log('CORS: ✅ Cloudflare tunnel domain - allowing:', origin);
-                return callback(null, true);
-            }
             if (allowedOrigins.includes(origin)) {
                 console.log('CORS: ✅ Origin in allowedOrigins - allowing:', origin);
                 return callback(null, true);
