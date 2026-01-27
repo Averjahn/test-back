@@ -6,8 +6,15 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
 import { PatientService } from './patient.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -15,6 +22,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole, type User } from '@prisma/client';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
+import { UpdatePatientProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('patient')
 @Controller('patient')
@@ -78,5 +86,58 @@ export class PatientController {
   @ApiResponse({ status: 404, description: 'Patient profile not found' })
   async getAchievements(@CurrentUser() user: User) {
     return this.patientService.getAchievements(user.id);
+  }
+
+  @Put('profile')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update patient profile' })
+  @ApiResponse({ status: 200, description: 'Profile successfully updated' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Patient only)' })
+  @ApiResponse({ status: 404, description: 'Patient profile not found' })
+  async updateProfile(
+    @CurrentUser() user: User,
+    @Body() dto: UpdatePatientProfileDto
+  ) {
+    return this.patientService.updateProfile(user.id, dto);
+  }
+
+  @Put('profile/avatar')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: join(process.cwd(), 'uploads', 'avatars'),
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          cb(null, `avatar-${uniqueSuffix}${ext}`);
+        },
+      }),
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    })
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload patient avatar' })
+  @ApiResponse({ status: 200, description: 'Avatar successfully uploaded' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Patient only)' })
+  @ApiResponse({ status: 404, description: 'Patient profile not found' })
+  async uploadAvatar(
+    @CurrentUser() user: User,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: true,
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+        ],
+      })
+    )
+    file: { filename: string }
+  ) {
+    const fileUrl = `/uploads/avatars/${file.filename}`;
+    return this.patientService.updateProfile(user.id, { avatarUrl: fileUrl });
   }
 }

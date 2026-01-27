@@ -23,15 +23,19 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
-# Директория для загружаемых файлов (должна быть доступна пользователю nestjs)
-RUN mkdir -p /app/uploads/documents /app/uploads/diary \
-  && chown -R nestjs:nestjs /app/uploads
+# Создаем директории для загружаемых файлов с правильными правами
+# Важно: создаем их до копирования файлов и переключения пользователя
+RUN mkdir -p /app/uploads/documents /app/uploads/diary /app/uploads/avatars
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Выдаем права на директории и файлы пользователю nestjs
+# Важно: делаем это после копирования файлов, но перед переключением пользователя
+RUN chown -R nestjs:nodejs /app/uploads /app/dist /app/node_modules /app/package.json /app/prisma
 
 USER nestjs
 

@@ -54,6 +54,71 @@ export class PatientService {
     return patient;
   }
 
+  async updateProfile(
+    patientUserId: string,
+    data: {
+      firstName?: string;
+      lastName?: string;
+      middleName?: string;
+      birthDate?: string;
+      trustedContact?: string;
+      avatarUrl?: string;
+    }
+  ) {
+    const patient = await this.prisma.patient.findUnique({
+      where: { userId: patientUserId },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient profile not found');
+    }
+
+    // Обновляем данные пользователя (ФИО)
+    const userUpdateData: {
+      firstName?: string;
+      lastName?: string;
+      middleName?: string;
+    } = {};
+    
+    if (data.firstName !== undefined) userUpdateData.firstName = data.firstName;
+    if (data.lastName !== undefined) userUpdateData.lastName = data.lastName;
+    if (data.middleName !== undefined) userUpdateData.middleName = data.middleName;
+
+    // Обновляем данные пациента (дата рождения, аватар, доверенный контакт)
+    const patientUpdateData: {
+      birthDate?: Date;
+      avatarUrl?: string;
+      trustedContact?: string;
+    } = {};
+
+    if (data.birthDate !== undefined) {
+      patientUpdateData.birthDate = data.birthDate ? new Date(data.birthDate) : null;
+    }
+    if (data.avatarUrl !== undefined) {
+      patientUpdateData.avatarUrl = data.avatarUrl || null;
+    }
+    if (data.trustedContact !== undefined) {
+      patientUpdateData.trustedContact = data.trustedContact || null;
+    }
+
+    // Обновляем пользователя и пациента в транзакции
+    const [updatedUser, updatedPatient] = await this.prisma.$transaction([
+      Object.keys(userUpdateData).length > 0
+        ? this.prisma.user.update({
+            where: { id: patientUserId },
+            data: userUpdateData,
+          })
+        : Promise.resolve(null),
+      this.prisma.patient.update({
+        where: { userId: patientUserId },
+        data: patientUpdateData,
+      }),
+    ]);
+
+    // Возвращаем обновленный профиль
+    return this.getProfile(patientUserId);
+  }
+
   async getTrainers(patientUserId: string) {
     const patient = await this.prisma.patient.findUnique({
       where: { userId: patientUserId },

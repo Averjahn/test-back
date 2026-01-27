@@ -3,10 +3,29 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  // Создаем необходимые директории для загрузки файлов, если их нет
+  const uploadsDir = join(process.cwd(), 'uploads');
+  const documentsDir = join(uploadsDir, 'documents');
+  const diaryDir = join(uploadsDir, 'diary');
+  const avatarsDir = join(uploadsDir, 'avatars');
+
+  [uploadsDir, documentsDir, diaryDir, avatarsDir].forEach((dir) => {
+    if (!existsSync(dir)) {
+      try {
+        mkdirSync(dir, { recursive: true });
+        console.log(`Created directory: ${dir}`);
+      } catch (error) {
+        console.error(`Failed to create directory ${dir}:`, error);
+        // Не прерываем запуск, но логируем ошибку
+      }
+    }
+  });
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Глобальный префикс API
