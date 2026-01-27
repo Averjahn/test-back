@@ -148,7 +148,9 @@ export class AdminController {
         ],
       })
     )
-    file: Express.Multer.File,
+    // Не используем Express.Multer.File, чтобы избежать зависимости от типов Multer в global.Express
+    // Для контроллера достаточно знать, что у файла есть поле filename, которое мы используем ниже
+    file: { filename: string },
     @Body() dto: { title: string; type: string }
   ) {
     // Формируем URL файла
