@@ -1,14 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Сервис для работы с данными пациентов
+ * 
+ * Отвечает за:
+ * - Получение профиля пациента
+ * - Обновление профиля пациента
+ * - Получение назначенных тренажеров
+ * - Получение назначений врача
+ * - Получение медицинских данных
+ * - Обновление тарифа
+ * - Получение достижений (результатов тестов)
+ * 
+ * Все методы работают с userId (ID пользователя), а не с patientId
+ * Это упрощает логику, так как userId уникален и связан с Patient через relation
+ */
 @Injectable()
 export class PatientService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Получить полный профиль пациента
+   * 
+   * Возвращает:
+   * - Данные пользователя (User): email, login, ФИО, роль
+   * - Данные пациента (Patient): дата рождения, аватар, доверенный контакт
+   * - Текущий тариф с опциями (Tariff + TariffOption[])
+   * - Список связанных врачей (PatientDoctor[] с данными врачей)
+   * 
+   * @param patientUserId - ID пользователя (User.id), связанного с Patient
+   * @returns Полный профиль пациента со всеми связанными данными
+   * @throws NotFoundException если профиль пациента не найден
+   */
   async getProfile(patientUserId: string) {
+    // Ищем пациента по userId (связь один-к-одному)
     const patient = await this.prisma.patient.findUnique({
       where: { userId: patientUserId },
       include: {
+        // Включаем данные пользователя (User)
+        // select ограничивает поля - passwordHash никогда не возвращается
         user: {
           select: {
             id: true,
@@ -19,17 +50,21 @@ export class PatientService {
             middleName: true,
             role: true,
             createdAt: true,
+            // passwordHash НЕ включается в select - безопасность
           },
         },
+        // Включаем текущий тариф с опциями
         tariff: {
           include: {
-            options: true,
+            options: true, // Все опции тарифа
           },
         },
+        // Включаем связанных врачей через промежуточную таблицу PatientDoctor
         doctors: {
           include: {
             doctor: {
               include: {
+                // Данные пользователя врача (ФИО, email)
                 user: {
                   select: {
                     id: true,
@@ -47,6 +82,7 @@ export class PatientService {
       },
     });
 
+    // Если профиль не найден, выбрасываем исключение
     if (!patient) {
       throw new NotFoundException('Patient profile not found');
     }
@@ -54,17 +90,42 @@ export class PatientService {
     return patient;
   }
 
+  /**
+   * Обновить профиль пациента
+   * 
+   * Обновляет данные в двух таблицах:
+   * 1. User - ФИО (firstName, lastName, middleName)
+   * 2. Patient - дата рождения, аватар, доверенный контакт
+   * 
+   * Процесс:
+   * 1. Проверка существования профиля пациента
+   * 2. Подготовка данных для обновления (только переданные поля)
+   * 3. Атомарное обновление через транзакцию Prisma
+   * 4. Возврат обновленного профиля
+   * 
+   * Важно:
+   * - Все поля опциональны (можно обновить только нужные)
+   * - Используется транзакция для атомарности (либо все обновляется, либо ничего)
+   * - null значения разрешены (можно очистить поле, передав null)
+   * - Пустые строки преобразуются в null для консистентности БД
+   * 
+   * @param patientUserId - ID пользователя (User.id)
+   * @param data - Данные для обновления (все поля опциональны)
+   * @returns Обновленный профиль пациента
+   * @throws NotFoundException если профиль пациента не найден
+   */
   async updateProfile(
     patientUserId: string,
     data: {
-      firstName?: string;
-      lastName?: string;
-      middleName?: string;
-      birthDate?: string;
-      trustedContact?: string;
-      avatarUrl?: string | null;
+      firstName?: string;        // Имя (обновляется в User)
+      lastName?: string;         // Фамилия (обновляется в User)
+      middleName?: string;       // Отчество (обновляется в User)
+      birthDate?: string;        // Дата рождения в формате ISO (обновляется в Patient)
+      trustedContact?: string;   // Доверенный контакт (обновляется в Patient)
+      avatarUrl?: string | null;  // URL аватара (null для удаления, обновляется в Patient)
     }
   ) {
+    // Проверяем, что профиль пациента существует
     const patient = await this.prisma.patient.findUnique({
       where: { userId: patientUserId },
     });
@@ -73,37 +134,48 @@ export class PatientService {
       throw new NotFoundException('Patient profile not found');
     }
 
-    // Обновляем данные пользователя (ФИО)
+    // Подготавливаем данные для обновления User (ФИО)
+    // Создаем объект только с теми полями, которые были переданы
     const userUpdateData: {
       firstName?: string | null;
       lastName?: string | null;
       middleName?: string | null;
     } = {};
     
+    // Проверяем каждое поле через !== undefined (чтобы отличить от null)
+    // Пустые строки преобразуем в null для консистентности БД
     if (data.firstName !== undefined) userUpdateData.firstName = data.firstName || null;
     if (data.lastName !== undefined) userUpdateData.lastName = data.lastName || null;
     if (data.middleName !== undefined) userUpdateData.middleName = data.middleName || null;
 
-    // Обновляем данные пациента (дата рождения, аватар, доверенный контакт)
+    // Подготавливаем данные для обновления Patient
     const patientUpdateData: {
       birthDate?: Date | null;
       avatarUrl?: string | null;
       trustedContact?: string | null;
     } = {};
 
+    // Дата рождения: преобразуем строку в Date или null
     if (data.birthDate !== undefined) {
       patientUpdateData.birthDate = data.birthDate ? new Date(data.birthDate) : null;
     }
+    
+    // Аватар: сохраняем как есть (может быть string или null для удаления)
     if (data.avatarUrl !== undefined) {
       patientUpdateData.avatarUrl = data.avatarUrl;
     }
+    
+    // Доверенный контакт: пустые строки преобразуем в null
     if (data.trustedContact !== undefined) {
       patientUpdateData.trustedContact = data.trustedContact || null;
     }
 
     // Обновляем пользователя и пациента в транзакции
+    // Транзакция гарантирует атомарность: либо все обновляется, либо ничего
+    // Используем callback синтаксис для условной логики
     await this.prisma.$transaction(async (tx) => {
-      // Обновляем пользователя, если есть изменения
+      // Обновляем пользователя, только если есть изменения
+      // Это оптимизация - не делаем лишний запрос, если ФИО не изменилось
       if (Object.keys(userUpdateData).length > 0) {
         await tx.user.update({
           where: { id: patientUserId },
@@ -111,14 +183,15 @@ export class PatientService {
         });
       }
 
-      // Обновляем пациента
+      // Всегда обновляем пациента (даже если данные пустые, это нормально)
       await tx.patient.update({
         where: { userId: patientUserId },
         data: patientUpdateData,
       });
     });
 
-    // Возвращаем обновленный профиль
+    // Возвращаем обновленный профиль через getProfile
+    // Это гарантирует, что вернутся все связанные данные (тариф, врачи и т.д.)
     return this.getProfile(patientUserId);
   }
 
