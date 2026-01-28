@@ -22,7 +22,14 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         if (!databaseUrl) {
             throw new Error('DATABASE_URL is not defined');
         }
-        const pool = new pg_1.Pool({ connectionString: databaseUrl });
+        const pool = new pg_1.Pool({
+            connectionString: databaseUrl,
+            ssl: process.env.NODE_ENV === 'production' || databaseUrl.includes('render.com')
+                ? {
+                    rejectUnauthorized: false,
+                }
+                : undefined,
+        });
         const adapter = new adapter_pg_1.PrismaPg(pool);
         super({ adapter });
         this.pool = pool;
