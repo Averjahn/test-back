@@ -14,7 +14,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       throw new Error('DATABASE_URL is not defined');
     }
 
-    const pool = new Pool({ connectionString: databaseUrl });
+    // Настройка Pool с поддержкой SSL для Render PostgreSQL
+    // Render требует SSL даже для Internal подключений
+    const pool = new Pool({
+      connectionString: databaseUrl,
+      // SSL настройки для Render PostgreSQL
+      ssl: process.env.NODE_ENV === 'production' || databaseUrl.includes('render.com')
+        ? {
+            rejectUnauthorized: false, // Render использует самоподписанные сертификаты
+          }
+        : undefined,
+    });
     const adapter = new PrismaPg(pool);
 
     super({ adapter });
