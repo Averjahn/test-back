@@ -46,6 +46,24 @@ export class AuthService {
    * @throws UnauthorizedException если email или password неверны
    */
   async validateUser(email: string, password: string): Promise<any> {
+    // ВРЕМЕННЫЙ РЕЖИМ: полностью отключаем проверку пароля,
+    // если явно включен флаг DISABLE_AUTH (использовать только локально!)
+    if (process.env.DISABLE_AUTH === 'true') {
+      // Ищем пользователя по email (если есть) или берём любого первого
+      let user = await this.usersService.findByEmail(email);
+      if (!user) {
+        const all = await this.usersService.findAll();
+        user = all[0];
+      }
+
+      if (!user) {
+        throw new UnauthorizedException('No users found while auth is disabled');
+      }
+
+      const { passwordHash: _, ...result } = user;
+      return result;
+    }
+
     // Ищем пользователя по email
     const user = await this.usersService.findByEmail(email);
     
